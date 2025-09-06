@@ -1,0 +1,42 @@
+import pandas as pd
+import numpy as np
+
+# Set random seed for reproducibility
+np.random.seed(42)
+
+# Number of sample records
+n_samples = 1000
+
+# Generate synthetic data
+data = {
+    "latitude": np.random.uniform(28.40, 28.75, n_samples),  # e.g., a city like Delhi
+    "longitude": np.random.uniform(76.80, 77.30, n_samples),
+    "timestamp": pd.date_range("2025-09-01", periods=n_samples, freq='H'),
+    "temperature": np.random.uniform(20, 40, n_samples),  # Celsius
+    "humidity": np.random.uniform(20, 90, n_samples),      # Percentage
+    "wind_speed": np.random.uniform(0, 20, n_samples),     # km/h
+    "traffic_volume": np.random.randint(100, 1000, n_samples),  # vehicles/hour
+}
+
+# Simulated pollution level with a rough correlation to traffic, temp, and wind speed
+pollution_base = (
+    0.4 * data["traffic_volume"]
+    + 2.0 * data["temperature"]
+    - 1.5 * data["wind_speed"]
+    + np.random.normal(0, 30, n_samples)  # noise
+)
+
+# Normalize to a more realistic AQI/PM2.5 range
+pollution_level = np.clip(pollution_base / 10, 30, 250)
+
+# Add to dataset
+data["pollution_level"] = pollution_level
+
+# Create DataFrame
+df_synthetic = pd.DataFrame(data)
+
+# Save to CSV
+df_synthetic.to_csv("data/sample_pollution_data.csv", index=False)
+
+# Show sample
+print(df_synthetic.head())
